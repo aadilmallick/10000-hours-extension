@@ -1,6 +1,6 @@
 {
-  "name": "React Extension",
-  "description": "Chrome Extension in React!",
+  "name": "10000 hours",
+  "description": "A google chrome extension to track your hours of mastery",
   "version": "1.0.0",
   "manifest_version": 3,
   "icons": {
@@ -10,10 +10,10 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "React Extension",
+    "default_title": "10000 hours",
     "default_icon": "icon.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "unlimitedStorage"],
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js",
