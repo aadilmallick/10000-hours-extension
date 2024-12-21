@@ -3,6 +3,8 @@ const CopyPlugin = require("copy-webpack-plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
+console.log(process.env.NODE_ENV)
+
 module.exports = {
   entry: {
     popup: path.resolve("src/popup/popup.tsx"),
@@ -15,8 +17,16 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
         exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              transpileOnly: process.env.NODE_ENV === "production",
+              reportFiles: ["!src/components/LogList.tsx"]
+            }
+          }
+        ],
       },
       {
         test: /\.css$/i,

@@ -4,9 +4,9 @@
   "description": "react chrome extension template",
   "scripts": {
     "start": "webpack --watch --progress --config webpack.dev.js",
-    "build": "webpack --progress --config webpack.prod.js"
+    "build": "set NODE_ENV=production && webpack --progress --config webpack.prod.js"
   },
-  "author": "",
+  "author": "aadilmallick",
   "devDependencies": {
     "@types/chrome": "^0.0.278",
     "@types/react": "^18.0.6",
