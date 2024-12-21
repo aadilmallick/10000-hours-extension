@@ -61,6 +61,8 @@ export const LogForm: React.FC<LogFormProps> = ({
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Add any notes or reflections..."
+            maxLength={500}
+            rows={10}
           />
         </div>
         <div className="flex space-x-2 items-start">

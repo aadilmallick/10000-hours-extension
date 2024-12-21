@@ -89,3 +89,7 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+[popover]::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

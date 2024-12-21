@@ -7,7 +7,7 @@ import Toaster from "../utils/web-components/Toaster";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "../utils/web-components/LoaderElement";
 import { PageLoaderElement } from "../utils/web-components/PageLoaderElement";
-import { Journey } from "../types/journey";
+import { isValidJourney, Journey } from "../types/journey";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { JourneyDetail } from "../components/JourneyDetail";
@@ -138,24 +138,6 @@ const App: React.FC<{}> = () => {
       }
 
       // Validate each journey object
-      const isValidJourney = (journey: any): journey is Journey => {
-        return (
-          typeof journey.id === 'string' &&
-          typeof journey.name === 'string' &&
-          typeof journey.initialHours === 'number' &&
-          typeof journey.targetHours === 'number' &&
-          typeof journey.totalHoursLogged === 'number' &&
-          typeof journey.createdAt === 'string' &&
-          Array.isArray(journey.logs) &&
-          journey.logs.every((log: any) =>
-            typeof log.id === 'string' &&
-            typeof log.title === 'string' &&
-            typeof log.description === 'string' &&
-            typeof log.date === 'string' &&
-            typeof log.hoursWorked === 'number'
-          )
-        );
-      };
 
       if (!importedData.every(isValidJourney)) {
         throw new Error('Invalid format: One or more journeys have invalid structure');
@@ -364,3 +346,4 @@ const container = document.createElement("div");
 document.body.appendChild(container);
 const root = createRoot(container);
 root.render(<App />);
+document.body.classList.add("fancy-scroll")

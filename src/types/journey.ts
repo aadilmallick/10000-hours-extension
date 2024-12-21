@@ -27,3 +27,25 @@ export interface LogFormData {
     description: string;
     hoursWorked: number;
 }
+
+export       const isValidJourney = (journey: any): journey is Journey => {
+    return (
+      typeof journey.id === 'string' &&
+      typeof journey.name === 'string' &&
+      typeof journey.initialHours === 'number' &&
+      typeof journey.targetHours === 'number' &&
+      typeof journey.totalHoursLogged === 'number' &&
+      typeof journey.createdAt === 'string' &&
+      Array.isArray(journey.logs) &&
+      journey.logs.every((log: any) =>
+        typeof log.id === 'string' &&
+        typeof log.title === 'string' &&
+        typeof log.description === 'string' &&
+        typeof log.date === 'string' &&
+        typeof log.hoursWorked === 'number' &&
+        log.hoursWorked >= 0 &&
+        log.initialHours >= 0 &&
+        log.initialHours <= log.hoursWorked
+      )
+    );
+  };
