@@ -1,8 +1,9 @@
 import { createRoot } from "react-dom/client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PermissionsModel from "../chrome-api/permissions";
 import { ChromeStorage } from "../chrome-api/storage";
 import { CSSVariablesManager } from "./Dom";
+import WebComponent from "./web-components/WebComponent";
 
 export function injectRoot(app: React.ReactNode, id?: string) {
   const root = document.createElement("div");
@@ -66,7 +67,20 @@ export function useGetOptionalPermissions(
     checkPerms();
   }, []);
 
-  return { permissionsGranted, setPermissionsGranted };
+  const onCheckedChange = async (checked: boolean) => {
+    setPermissionsGranted(checked);
+    if (checked) {
+      const granted = await optionalPermissions.request();
+      if (!granted) setPermissionsGranted(false);
+    }
+    if (!checked) {
+      const permissionsWereGranted =
+        await optionalPermissions.permissionIsGranted();
+      if (permissionsWereGranted) await optionalPermissions.remove();
+    }
+  };
+
+  return { permissionsGranted, setPermissionsGranted, onCheckedChange };
 }
 
 export function useChromeStorage<
@@ -74,7 +88,7 @@ export function useChromeStorage<
   K extends keyof T
 >(storage: ChromeStorage<T>, key: K) {
   const [value, setValue] = React.useState<T[K] | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     async function getValue() {
@@ -106,6 +120,16 @@ export function useChromeStorage<
   }
 
   return { data: value, loading, setValueAndStore };
+}
+
+export function useWebComponentRef<T extends WebComponent>() {
+  const ref = React.useRef<T>(null);
+
+  function refActive() {
+    return ref.current !== null;
+  }
+
+  return { ref, refActive };
 }
 
 export function useCssVariables<

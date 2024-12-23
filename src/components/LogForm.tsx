@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LogFormData } from "../types/journey";
+import Action from "../chrome-api/action";
 
 interface LogFormProps {
   onSubmit: (data: LogFormData) => Promise<void>;
@@ -31,9 +32,14 @@ export const LogForm: React.FC<LogFormProps> = ({
       return;
     }
     if (maxHoursPerDay && formData.hoursWorked > maxHoursPerDay) {
-      alert(`Hours worked cannot exceed the daily limit of ${maxHoursPerDay} hours`);
+      alert(
+        `Hours worked cannot exceed the daily limit of ${maxHoursPerDay} hours`
+      );
       return;
     }
+    Action.setActionBadge({
+      text: "",
+    });
     await onSubmit(formData);
   };
 
@@ -42,31 +48,41 @@ export const LogForm: React.FC<LogFormProps> = ({
       <h2 className="text-lg font-semibold mb-3 text-black">Add New Log</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex space-x-2 items-center">
-          <label htmlFor="title" className="flex-1 text-sm">Title</label>
+          <label htmlFor="title" className="flex-1 text-sm">
+            Title
+          </label>
           <input
             id="title"
             type="text"
             required
             className="flex-[2_1_0%] p-1 text-base border border-gray-300 rounded-md"
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
             placeholder="What did you work on?"
           />
         </div>
         <div className="flex space-x-2 items-start">
-          <label htmlFor="description" className="flex-1 text-sm">Description (Optional)</label>
+          <label htmlFor="description" className="flex-1 text-sm">
+            Description (Optional)
+          </label>
           <textarea
             id="description"
             className="flex-[2_1_0%] p-1 text-base border border-gray-300 rounded-md min-h-[80px]"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             placeholder="Add any notes or reflections..."
             maxLength={500}
             rows={10}
           />
         </div>
         <div className="flex space-x-2 items-start">
-          <label htmlFor="hoursWorked" className="flex-1 text-sm">Hours Worked</label>
+          <label htmlFor="hoursWorked" className="flex-1 text-sm">
+            Hours Worked
+          </label>
           <div className="flex-[2_1_0%]">
             <input
               id="hoursWorked"
@@ -76,7 +92,10 @@ export const LogForm: React.FC<LogFormProps> = ({
               className="w-full p-1 text-base border border-gray-300 rounded-md"
               value={formData.hoursWorked}
               onChange={(e) =>
-                setFormData({ ...formData, hoursWorked: Number(e.target.value) })
+                setFormData({
+                  ...formData,
+                  hoursWorked: Number(e.target.value),
+                })
               }
             />
             {maxHoursPerDay && (
@@ -87,7 +106,9 @@ export const LogForm: React.FC<LogFormProps> = ({
           </div>
         </div>
         <div className="flex space-x-2 justify-center">
-          <Button type="submit" className="rounded-md">Add Log</Button>
+          <Button type="submit" className="rounded-md">
+            Add Log
+          </Button>
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>

@@ -35,6 +35,10 @@ export default abstract class WebComponent<
     }
   }
 
+  static isAlreadyRegistered(name: string): boolean {
+    return customElements.get(name) !== undefined;
+  }
+
   /**
    * Might be blocked depending on CSP
    * @param str the string to interpolate

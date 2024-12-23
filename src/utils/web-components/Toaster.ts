@@ -8,6 +8,10 @@ type ToastManagerOptions = {
   timeout?: number;
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
 };
+interface Props {
+  "data-timeout"?: ToastManagerOptions["timeout"];
+  "data-position"?: ToastManagerOptions["position"];
+}
 
 class Toast {
   public element: HTMLElement;
@@ -82,10 +86,6 @@ export default class Toaster extends WebComponent<typeof observedAttributes> {
     super({
       templateId: "toaster-element",
     });
-
-    this.position = (this.dataset.position ||
-      "bottom-right") as ToastManagerOptions["position"];
-    this.timeout = (this.dataset.timeout || 3000) as number;
   }
 
   // region Overrides
@@ -95,8 +95,8 @@ export default class Toaster extends WebComponent<typeof observedAttributes> {
     oldVal: string,
     newVal: string
   ): void {
-    this[attrName] = newVal;
-    if (attrName === "data-position") {
+    super.attributeChangedCallback(attrName, oldVal, newVal);
+    if (attrName === "data-position" && oldVal !== newVal) {
       this.$(".toast-container")?.classList.remove(oldVal);
       this.$(".toast-container")?.classList.add(newVal);
     }
@@ -104,6 +104,10 @@ export default class Toaster extends WebComponent<typeof observedAttributes> {
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.position = (this.dataset.position ||
+      "bottom-right") as ToastManagerOptions["position"];
+    this.timeout = (this.dataset.timeout || 3000) as number;
+    console.log(this.position, this.timeout);
     this.$(".toast-container")?.classList.add(this.position);
   }
 
@@ -113,6 +117,10 @@ export default class Toaster extends WebComponent<typeof observedAttributes> {
 
   static registerSelf() {
     WebComponent.register("toaster-element", Toaster);
+  }
+
+  static isAlreadyRegistered(): boolean {
+    return customElements.get("toaster-element") !== undefined;
   }
 
   static get HTMLContent() {
@@ -263,7 +271,8 @@ declare global {
       "toaster-element": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement>,
         HTMLElement
-      >;
+      > &
+        Props;
     }
   }
 }

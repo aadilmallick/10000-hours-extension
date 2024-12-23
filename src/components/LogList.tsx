@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Log } from "../types/journey";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LogSearch } from "./LogSearch";
 
 interface LogListProps {
   logs: Log[];
@@ -9,6 +10,7 @@ interface LogListProps {
 }
 
 export const LogList: React.FC<LogListProps> = ({ logs, onDeleteLog }) => {
+  const [filteredLogs, setFilteredLogs] = useState(logs);
   if (logs.length === 0) {
     return (
       <div className="text-center text-gray-400 py-4">
@@ -17,11 +19,23 @@ export const LogList: React.FC<LogListProps> = ({ logs, onDeleteLog }) => {
     );
   }
 
+  if (logs.length !== 0 && filteredLogs.length === 0) {
+    return (
+      <div className="text-center text-gray-400 py-4">
+        No logs match your search criteria
+      </div>
+    );
+  }
+
   return (
     <>
     <h3 className="font-semibold text-lg border-b border-gray-700 pb-1 mb-3 text-center">Logs</h3>
+    <LogSearch 
+        logs={logs} 
+        onFilteredLogsChange={setFilteredLogs} 
+      />
     <div className="space-y-3 max-h-[400px] overflow-y-auto fancy-scroll">
-      {logs.map((log) => (
+      {filteredLogs.map((log) => (
         <Card key={log.id} className="p-3 bg-gray-800 hover:bg-gray-950 transition-colors" onClick={(e) => {
           const popover = document.getElementById(`popover-${log.id}`)
           popover.showPopover()

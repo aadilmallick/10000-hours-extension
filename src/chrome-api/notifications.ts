@@ -1,6 +1,9 @@
 // requires "notifications" permission in manifest.json
 
 export default class NotificationModel {
+  static get apiAvailable() {
+    return "notifications" in chrome;
+  }
   static showBasicNotification({
     title,
     message,

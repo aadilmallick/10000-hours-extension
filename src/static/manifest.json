@@ -1,7 +1,7 @@
 {
   "name": "10000 hours",
   "description": "A google chrome extension to track your hours of mastery",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "manifest_version": 3,
   "icons": {
     "16": "icon.png",
@@ -13,7 +13,8 @@
     "default_title": "10000 hours",
     "default_icon": "icon.png"
   },
-  "permissions": ["storage", "unlimitedStorage"],
+  "permissions": ["storage", "unlimitedStorage", "alarms"],
+  "optional_permissions": ["notifications"],
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js",
