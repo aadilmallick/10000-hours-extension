@@ -37,7 +37,7 @@ export const LogForm: React.FC<LogFormProps> = ({
       );
       return;
     }
-    Action.setActionBadge({
+    await Action.setActionBadge({
       text: "",
     });
     await onSubmit(formData);
@@ -61,6 +61,7 @@ export const LogForm: React.FC<LogFormProps> = ({
               setFormData({ ...formData, title: e.target.value })
             }
             placeholder="What did you work on?"
+            maxLength={70}
           />
         </div>
         <div className="flex space-x-2 items-start">
