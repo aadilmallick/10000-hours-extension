@@ -11,7 +11,11 @@ import { isValidJourney, Journey } from "../types/journey";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { JourneyDetail } from "../components/JourneyDetail";
-import { appSettingsStorage, appStorage, StorageHandler } from "../background/controllers/storage";
+import {
+  appSettingsStorage,
+  appStorage,
+  StorageHandler,
+} from "../background/controllers/storage";
 import { Settings, Download } from "lucide-react";
 import {
   Dialog,
@@ -19,10 +23,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription
+  DialogDescription,
 } from "@/components/ui/dialog";
 
-Toaster.registerSelf()
+Toaster.registerSelf();
 
 const App: React.FC<{}> = () => {
   const [journeys, setJourneys] = useState<Journey[]>([]);
@@ -106,11 +110,14 @@ const App: React.FC<{}> = () => {
 
   const handleExportData = async () => {
     const dataStr = JSON.stringify(journeys, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
-    
-    const filename = `10000-hours-data-${new Date().toDateString().replaceAll('/', '-').replaceAll(' ', '-')}.json`
-    const link = document.createElement('a');
+
+    const filename = `10000-hours-data-${new Date()
+      .toDateString()
+      .replaceAll("/", "-")
+      .replaceAll(" ", "-")}.json`;
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -120,44 +127,51 @@ const App: React.FC<{}> = () => {
     setShowSettings(false);
   };
 
-  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportData = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const shouldGoAhead = confirm('Are you sure you want to import this data? This will overwrite your current data.');
+    const shouldGoAhead = confirm(
+      "Are you sure you want to import this data? This will overwrite your current data."
+    );
     if (!shouldGoAhead) return;
 
     try {
-      setLoading(true)
+      setLoading(true);
       const text = await file.text();
       const importedData = JSON.parse(text);
 
       // Validate the imported data structure
       if (!Array.isArray(importedData)) {
-        throw new Error('Invalid format: Data must be an array of journeys');
+        throw new Error("Invalid format: Data must be an array of journeys");
       }
 
       // Validate each journey object
 
       if (!importedData.every(isValidJourney)) {
-        throw new Error('Invalid format: One or more journeys have invalid structure');
+        throw new Error(
+          "Invalid format: One or more journeys have invalid structure"
+        );
       }
 
       // Save to storage and update state
-      await appStorage.set('journies', importedData);
+      await appStorage.set("journies", importedData);
       setJourneys(importedData);
-      toasterRef.current?.toast('Journeys imported successfully');
+      toasterRef.current?.toast("Journeys imported successfully");
       setShowSettings(false);
     } catch (error) {
-      toasterRef.current?.toast(error instanceof Error ? error.message : 'Failed to import journeys');
-    }
-    finally {
-      setLoading(false)
+      toasterRef.current?.toast(
+        error instanceof Error ? error.message : "Failed to import journeys"
+      );
+    } finally {
+      setLoading(false);
       setShowSettings(false);
     }
-    
+
     // Reset the file input
-    event.target.value = '';
+    event.target.value = "";
   };
 
   if (selectedJourney) {
@@ -184,7 +198,8 @@ const App: React.FC<{}> = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="secondary"
-              onClick={() => setShowNewJourneyForm(true)}>
+              onClick={() => setShowNewJourneyForm(true)}
+            >
               New Journey
             </Button>
             <Dialog>
@@ -201,14 +216,14 @@ const App: React.FC<{}> = () => {
                 <DialogHeader>
                   <DialogTitle>Settings</DialogTitle>
                 </DialogHeader>
-              <DialogDescription className="text-center">
-                Export or Import Journies Data
-              </DialogDescription>
+                <DialogDescription className="text-center">
+                  Export or Import Journies Data
+                </DialogDescription>
                 <div className="space-y-4 py-4">
                   <div className="flex flex-col space-y-4">
                     <Button
                       onClick={async () => {
-                        await handleExportData()
+                        await handleExportData();
                       }}
                       disabled={loading}
                       className="w-full flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -216,10 +231,10 @@ const App: React.FC<{}> = () => {
                       <Download className="h-4 w-4 mr-2" />
                       Export Journey Data
                     </Button>
-                    
+
                     <div className="space-y-2">
-                      <label 
-                        htmlFor="import-file" 
+                      <label
+                        htmlFor="import-file"
                         className="block text-sm font-medium text-gray-700"
                       >
                         Import Journeys
@@ -248,45 +263,75 @@ const App: React.FC<{}> = () => {
 
         {showNewJourneyForm && (
           <Card className="p-4 mb-4 bg-gray-200">
-            <h2 className="text-lg font-semibold mb-3 text-black">Create New Journey</h2>
+            <h2 className="text-lg font-semibold mb-3 text-black">
+              Create New Journey
+            </h2>
             <div className="space-y-3">
               <div className="flex space-x-2 items-center">
-                <label htmlFor="name" className="flex-1 text-sm">Journey Name</label>
+                <label htmlFor="name" className="flex-1 text-sm">
+                  Journey Name
+                </label>
                 <input
                   type="text"
                   id="name"
                   required
                   className="flex-[2_1_0%] p-1 text-base border border-gray-300 rounded-md"
                   value={newJourney.name}
-                  onChange={(e) => setNewJourney({ ...newJourney, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewJourney({ ...newJourney, name: e.target.value })
+                  }
                   placeholder="E.g., Learn Piano"
                 />
               </div>
               <div className="flex space-x-2 items-center">
-                <label htmlFor="initialHours" className="flex-1 text-sm">Initial Hours</label>
+                <label htmlFor="initialHours" className="flex-1 text-sm">
+                  Initial Hours
+                </label>
                 <input
                   type="number"
                   id="initialHours"
                   required
                   className="flex-[2_1_0%] p-1 text-base border border-gray-300 rounded-md"
                   value={newJourney.initialHours}
-                  onChange={(e) => setNewJourney({ ...newJourney, initialHours: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewJourney({
+                      ...newJourney,
+                      initialHours: Number(e.target.value),
+                    })
+                  }
                 />
               </div>
               <div className="flex space-x-2 items-center">
-                <label htmlFor="targetHours" className="flex-1 text-sm">Target Hours</label>
+                <label htmlFor="targetHours" className="flex-1 text-sm">
+                  Target Hours
+                </label>
                 <input
                   id="targetHours"
                   required
                   type="number"
                   className="flex-[2_1_0%] p-1 text-base border border-gray-300 rounded-md"
                   value={newJourney.targetHours}
-                  onChange={(e) => setNewJourney({ ...newJourney, targetHours: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewJourney({
+                      ...newJourney,
+                      targetHours: Number(e.target.value),
+                    })
+                  }
                 />
               </div>
               <div className="flex space-x-2 justify-center">
-                <Button onClick={handleCreateJourney} className="bg-white text-black hover:text-white hover:bg-black rounded-md">Create Journey</Button>
-                <Button variant="outline" onClick={() => setShowNewJourneyForm(false)}>Cancel</Button>
+                <Button
+                  onClick={handleCreateJourney}
+                  className="bg-white text-black hover:text-white hover:bg-black rounded-md"
+                >
+                  Create Journey
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowNewJourneyForm(false)}
+                >
+                  Cancel
+                </Button>
               </div>
             </div>
           </Card>
@@ -301,16 +346,19 @@ const App: React.FC<{}> = () => {
         ) : (
           <div className="space-y-4">
             {journeys.map((journey) => (
-              <Card 
-                key={journey.id} 
+              <Card
+                key={journey.id}
                 className="p-4 bg-gray-200 cursor-pointer hover:bg-gray-300 transition-colors"
                 onClick={() => handleSelectJourney(journey)}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h3 className="text-lg font-semibold text-black">{journey.name}</h3>
+                    <h3 className="text-lg font-semibold text-black">
+                      {journey.name}
+                    </h3>
                     <p className="text-sm text-gray-400">
-                      {journey.totalHoursLogged} / {journey.targetHours} hours
+                      {journey.totalHoursLogged.toFixed(1)} /{" "}
+                      {journey.targetHours} hours
                     </p>
                   </div>
                   <Button
@@ -335,8 +383,8 @@ const App: React.FC<{}> = () => {
         )}
       </div>
       <toaster-element
-            data-position="bottom-left"
-            ref={toasterRef}
+        data-position="bottom-left"
+        ref={toasterRef}
       ></toaster-element>
     </>
   );
@@ -346,4 +394,4 @@ const container = document.createElement("div");
 document.body.appendChild(container);
 const root = createRoot(container);
 root.render(<App />);
-document.body.classList.add("fancy-scroll")
+document.body.classList.add("fancy-scroll");

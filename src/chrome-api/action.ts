@@ -16,6 +16,11 @@ export default class Action {
     await chrome.action.setTitle({ title, tabId });
   }
 
+  static async resetActionBadge(tabId?: number) {
+    await chrome.action.setBadgeText({ text: "", tabId });
+    await chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 0], tabId });
+  }
+
   static async setActionBadge(
     {
       bgcolor,

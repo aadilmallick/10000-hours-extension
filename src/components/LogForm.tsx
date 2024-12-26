@@ -37,9 +37,7 @@ export const LogForm: React.FC<LogFormProps> = ({
       );
       return;
     }
-    await Action.setActionBadge({
-      text: "",
-    });
+    await Action.resetActionBadge();
     await onSubmit(formData);
   };
 
@@ -87,6 +85,8 @@ export const LogForm: React.FC<LogFormProps> = ({
           <div className="flex-[2_1_0%]">
             <input
               id="hoursWorked"
+              min="0"
+              max={maxHoursPerDay}
               type="number"
               step="0.5"
               required
