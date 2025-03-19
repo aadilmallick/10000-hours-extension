@@ -4,6 +4,14 @@ import { Card } from "@/components/ui/card";
 import { LogFormData } from "../types/journey";
 import Action from "../chrome-api/action";
 
+const Loader = () => {
+  return (
+    <div className="absolute top-0 left-0 w-full h-full bg-gray-200/50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-8 border-red-500"></div>
+    </div>
+  );
+};
+
 interface LogFormProps {
   onSubmit: (data: LogFormData) => Promise<void>;
   onCancel: () => void;
@@ -20,6 +28,7 @@ export const LogForm: React.FC<LogFormProps> = ({
     description: "",
     hoursWorked: 0,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +46,20 @@ export const LogForm: React.FC<LogFormProps> = ({
       );
       return;
     }
-    await Action.resetActionBadge();
-    await onSubmit(formData);
+    setLoading(true);
+    try {
+      await Action.resetActionBadge();
+      await onSubmit(formData);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Card className="p-4 bg-gray-200">
+    <Card className="p-4 bg-gray-200 relative">
+      {loading && <Loader />}
       <h2 className="text-lg font-semibold mb-3 text-black">Add New Log</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex space-x-2 items-center">
@@ -107,10 +124,15 @@ export const LogForm: React.FC<LogFormProps> = ({
           </div>
         </div>
         <div className="flex space-x-2 justify-center">
-          <Button type="submit" className="rounded-md">
+          <Button type="submit" className="rounded-md" disabled={loading}>
             Add Log
           </Button>
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </Button>
         </div>
