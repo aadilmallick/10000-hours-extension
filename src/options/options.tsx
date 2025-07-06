@@ -8,6 +8,8 @@ import {
   useWebComponentRef,
 } from "../utils/ReactUtils";
 import { appSettingsStorage } from "../background/controllers/storage";
+import { StorageHandler } from "../background/controllers/storage";
+import { uploadToGist, downloadFromGist } from "../utils/gistSync";
 
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -37,6 +39,71 @@ const App: React.FC<{}> = () => {
     useGetOptionalPermissions(optionalPermissions);
   const { ref: toasterRef, refActive } = useWebComponentRef<Toaster>();
   console.log(toasterRef);
+
+  const [gistToken, setGistToken] = useState("");
+  const [gistId, setGistId] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  // Load saved PAT and Gist ID on mount
+  useEffect(() => {
+    StorageHandler.getGistPersonalAccessToken().then(setGistToken);
+    StorageHandler.getGistId().then(setGistId);
+  }, []);
+
+  // Save PAT
+  const saveToken = async () => {
+    await StorageHandler.setGistPersonalAccessToken(gistToken);
+    if (refActive()) toasterRef.current.success("Token saved");
+  };
+  // Save Gist ID
+  const saveGistId = async () => {
+    await StorageHandler.setGistId(gistId);
+    if (refActive()) toasterRef.current.success("Gist ID saved");
+  };
+
+  // Sync Now handler
+  const syncNow = async () => {
+    setSyncing(true);
+    try {
+      const journies = await StorageHandler.getJournies();
+      await uploadToGist({
+        gistId,
+        filename: "10000-hours-data.json",
+        content: JSON.stringify(journies, null, 2),
+        token: gistToken,
+      });
+      if (refActive()) toasterRef.current.success("Synced to Gist!");
+    } catch (e) {
+      if (refActive()) toasterRef.current.danger("Sync failed: " + e.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Restore from Gist handler
+  const restoreFromGist = async () => {
+    const shouldRestore = confirm(
+      "Are you sure you want to restore from Gist? This will overwrite your current data."
+    );
+    if (!shouldRestore) return;
+    setRestoring(true);
+    try {
+      const content = await downloadFromGist({
+        gistId,
+        filename: "10000-hours-data.json",
+        token: gistToken,
+      });
+      const journies = JSON.parse(content);
+      await StorageHandler.saveJournies(journies);
+      if (refActive()) toasterRef.current.success("Restored from Gist!");
+    } catch (e) {
+      if (refActive())
+        toasterRef.current.danger("Restore failed: " + e.message);
+    } finally {
+      setRestoring(false);
+    }
+  };
 
   useEffect(() => {
     setTime(alarmTriggerTime);
@@ -82,6 +149,51 @@ const App: React.FC<{}> = () => {
         >
           Apply Time
         </Button>
+      </div>
+      {/* Gist Sync Section */}
+      <div className="space-y-2 p-4 max-w-5xl mx-auto border-t mt-8">
+        <h2 className="font-bold text-lg">GitHub Gist Sync</h2>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="password"
+            placeholder="GitHub Personal Access Token"
+            value={gistToken}
+            onChange={(e) => setGistToken(e.target.value)}
+            className="w-96"
+          />
+          <Button onClick={saveToken} disabled={!gistToken}>
+            Save Token
+          </Button>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="text"
+            placeholder="Gist ID"
+            value={gistId}
+            onChange={(e) => setGistId(e.target.value)}
+            className="w-96"
+          />
+          <Button onClick={saveGistId} disabled={!gistId}>
+            Save Gist ID
+          </Button>
+        </div>
+        <Button onClick={syncNow} disabled={!gistToken || !gistId || syncing}>
+          {syncing ? "Syncing..." : "Sync Now"}
+        </Button>
+        <Button
+          onClick={restoreFromGist}
+          disabled={!gistToken || !gistId || restoring}
+          variant="secondary"
+          className="ml-2"
+        >
+          {restoring ? "Restoring..." : "Restore from Gist"}
+        </Button>
+        <p className="text-slate-500 text-xs max-w-xl">
+          Your data will be saved to a file named{" "}
+          <code>10000-hours-data.json</code> in the specified Gist. You must
+          create the Gist manually and provide a token with <code>gist</code>{" "}
+          scope.
+        </p>
       </div>
       <toaster-element
         ref={toasterRef}

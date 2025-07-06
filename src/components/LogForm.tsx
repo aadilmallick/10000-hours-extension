@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LogFormData } from "../types/journey";
 import Action from "../chrome-api/action";
+import { uploadToGist } from "../utils/gistSync";
+import { StorageHandler } from "../background/controllers/storage";
 
 const Loader = () => {
   return (
@@ -50,6 +52,20 @@ export const LogForm: React.FC<LogFormProps> = ({
     try {
       await Action.resetActionBadge();
       await onSubmit(formData);
+      // sync to gist
+      const [gistId, gistToken, journies] = await Promise.all([
+        StorageHandler.getGistId(),
+        StorageHandler.getGistPersonalAccessToken(),
+        StorageHandler.getJournies(),
+      ]);
+      if (gistId && gistToken && journies) {
+        await uploadToGist({
+          gistId: gistId,
+          filename: "10000-hours-data.json",
+          content: JSON.stringify(journies),
+          token: gistToken,
+        });
+      }
     } catch (e) {
       console.error(e);
     } finally {

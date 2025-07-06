@@ -9,12 +9,19 @@ export const appSettingsStorage = new SyncStorage({
   lastStoredDate: new Date().toDateString(),
   alarmTriggerTime: "20:00",
   notificationsEnabled: false,
+  gistPersonalAccessToken: "",
+  gistId: "",
 });
 
 // define static methods here
 export class StorageHandler {
   static async getJournies() {
     return appStorage.get("journies");
+  }
+
+  static async saveJournies(journies: Journey[]) {
+    await appStorage.set("journies", journies);
+    return journies;
   }
 
   static async saveJourney(journey: Journey) {
@@ -67,5 +74,29 @@ export class StorageHandler {
     });
     await appStorage.set("journies", updatedJournies);
     return updatedJournies;
+  }
+
+  static async getSettings() {
+    return appSettingsStorage.getAll();
+  }
+
+  static async setSettings(settings: Partial<Record<string, any>>) {
+    return appSettingsStorage.setMultiple(settings);
+  }
+
+  static async getGistPersonalAccessToken() {
+    return appSettingsStorage.get("gistPersonalAccessToken");
+  }
+
+  static async setGistPersonalAccessToken(token: string) {
+    return appSettingsStorage.set("gistPersonalAccessToken", token);
+  }
+
+  static async getGistId() {
+    return appSettingsStorage.get("gistId");
+  }
+
+  static async setGistId(gistId: string) {
+    return appSettingsStorage.set("gistId", gistId);
   }
 }
