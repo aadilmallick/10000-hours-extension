@@ -25,6 +25,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { downloadFromGist } from "../utils/gistSync";
 
 Toaster.registerSelf();
 
@@ -44,6 +45,33 @@ const App: React.FC<{}> = () => {
 
   useEffect(() => {
     loadJourneys();
+    // On popup open, try to sync from Gist if settings are present
+    (async () => {
+      try {
+        setLoading(true);
+        const [token, gistId] = await Promise.all([
+          StorageHandler.getGistPersonalAccessToken(),
+          StorageHandler.getGistId(),
+        ]);
+        if (token && gistId) {
+          const content = await downloadFromGist({
+            gistId,
+            filename: "10000-hours-data.json",
+            token,
+          });
+          const journies = JSON.parse(content);
+          await StorageHandler.saveJournies(journies);
+          setJourneys(journies);
+          toasterRef.current?.success("Data synced from Gist");
+        }
+      } catch (e) {
+        toasterRef.current?.warning(
+          "Could not sync from Gist: " + (e.message || e.toString())
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const loadJourneys = async () => {
