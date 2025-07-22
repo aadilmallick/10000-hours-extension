@@ -22,6 +22,7 @@ import {
 } from "../background/controllers/alarms";
 import PermissionsModel from "../chrome-api/permissions";
 import Toaster from "../utils/web-components/Toaster";
+import Stats from "./Stats";
 Toaster.registerSelf();
 
 const optionalPermissions = new PermissionsModel({
@@ -195,6 +196,7 @@ const App: React.FC<{}> = () => {
           scope.
         </p>
       </div>
+      <Stats />
       <toaster-element
         ref={toasterRef}
         data-position="top-right"
