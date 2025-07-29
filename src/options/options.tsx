@@ -65,6 +65,10 @@ const App: React.FC<{}> = () => {
 
   // Sync Now handler
   const syncNow = async () => {
+    const shouldGoAhead = confirm(
+      "Are you sure you want to push up your local changes to the remote gist? This is destructive and will overwrite remote history."
+    );
+    if (!shouldGoAhead) return;
     setSyncing(true);
     try {
       const journies = await StorageHandler.getJournies();

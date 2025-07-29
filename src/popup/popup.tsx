@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
 // import "../index.css";
 import "../styles/globals.css";
@@ -43,8 +43,7 @@ const App: React.FC<{}> = () => {
     targetHours: 10000,
   });
 
-  useEffect(() => {
-    loadJourneys();
+  useLayoutEffect(() => {
     // On popup open, try to sync from Gist if settings are present
     (async () => {
       try {
@@ -66,8 +65,11 @@ const App: React.FC<{}> = () => {
         }
       } catch (e) {
         toasterRef.current?.warning(
-          "Could not sync from Gist: " + (e.message || e.toString())
+          "Could not sync from Gist: " +
+            (e.message || e.toString()) +
+            "Open options page to manually sync."
         );
+        await loadJourneys();
       } finally {
         setLoading(false);
       }
