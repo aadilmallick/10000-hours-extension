@@ -14,7 +14,7 @@ export async function uploadToGist({
   const trimmedGistId = gistId.trim();
   const trimmedToken = token.trim();
   if (!trimmedGistId || !trimmedToken) {
-    throw new Error("Gist ID and token are required");
+    throw new Error("Gist ID and token cannot be empty");
   }
   const url = `https://api.github.com/gists/${trimmedGistId}`;
   const body = {
@@ -52,7 +52,7 @@ export async function downloadFromGist({
   const trimmedGistId = gistId.trim();
   const trimmedToken = token.trim();
   if (!trimmedGistId || !trimmedToken) {
-    throw new Error("Gist ID and token are required");
+    throw new Error("Gist ID and token cannot be empty");
   }
   const url = `https://api.github.com/gists/${trimmedGistId}`;
   const res = await fetch(url, {
