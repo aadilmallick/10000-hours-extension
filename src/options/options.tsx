@@ -48,18 +48,24 @@ const App: React.FC<{}> = () => {
 
   // Load saved PAT and Gist ID on mount
   useEffect(() => {
-    StorageHandler.getGistPersonalAccessToken().then(setGistToken);
-    StorageHandler.getGistId().then(setGistId);
+    StorageHandler.getGistPersonalAccessToken().then((token) =>
+      setGistToken(token ?? "")
+    );
+    StorageHandler.getGistId().then((id) => setGistId(id ?? ""));
   }, []);
 
   // Save PAT
   const saveToken = async () => {
-    await StorageHandler.setGistPersonalAccessToken(gistToken);
+    const trimmedToken = gistToken.trim();
+    setGistToken(trimmedToken);
+    await StorageHandler.setGistPersonalAccessToken(trimmedToken);
     if (refActive()) toasterRef.current.success("Token saved");
   };
   // Save Gist ID
   const saveGistId = async () => {
-    await StorageHandler.setGistId(gistId);
+    const trimmedGistId = gistId.trim();
+    setGistId(trimmedGistId);
+    await StorageHandler.setGistId(trimmedGistId);
     if (refActive()) toasterRef.current.success("Gist ID saved");
   };
 
@@ -166,7 +172,7 @@ const App: React.FC<{}> = () => {
             onChange={(e) => setGistToken(e.target.value)}
             className="w-96"
           />
-          <Button onClick={saveToken} disabled={!gistToken}>
+          <Button onClick={saveToken} disabled={!gistToken.trim()}>
             Save Token
           </Button>
         </div>
@@ -178,16 +184,19 @@ const App: React.FC<{}> = () => {
             onChange={(e) => setGistId(e.target.value)}
             className="w-96"
           />
-          <Button onClick={saveGistId} disabled={!gistId}>
+          <Button onClick={saveGistId} disabled={!gistId.trim()}>
             Save Gist ID
           </Button>
         </div>
-        <Button onClick={syncNow} disabled={!gistToken || !gistId || syncing}>
+        <Button
+          onClick={syncNow}
+          disabled={!gistToken.trim() || !gistId.trim() || syncing}
+        >
           {syncing ? "Syncing..." : "Sync Now"}
         </Button>
         <Button
           onClick={restoreFromGist}
-          disabled={!gistToken || !gistId || restoring}
+          disabled={!gistToken.trim() || !gistId.trim() || restoring}
           variant="secondary"
           className="ml-2"
         >

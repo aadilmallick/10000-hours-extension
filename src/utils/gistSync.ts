@@ -11,7 +11,12 @@ export async function uploadToGist({
   content: string;
   token: string;
 }) {
-  const url = `https://api.github.com/gists/${gistId}`;
+  const trimmedGistId = gistId.trim();
+  const trimmedToken = token.trim();
+  if (!trimmedGistId || !trimmedToken) {
+    throw new Error("Gist ID and token are required");
+  }
+  const url = `https://api.github.com/gists/${trimmedGistId}`;
   const body = {
     files: {
       [filename]: { content },
@@ -22,7 +27,7 @@ export async function uploadToGist({
     headers: {
       "Content-Type": "application/json",
       Accept: "application/vnd.github+json",
-      Authorization: `token ${token}`,
+      Authorization: `Bearer ${trimmedToken}`,
       "X-GitHub-Api-Version": "2022-11-28",
     },
     body: JSON.stringify(body),
@@ -44,10 +49,17 @@ export async function downloadFromGist({
   filename: string;
   token: string;
 }) {
-  const url = `https://api.github.com/gists/${gistId}`;
+  const trimmedGistId = gistId.trim();
+  const trimmedToken = token.trim();
+  if (!trimmedGistId || !trimmedToken) {
+    throw new Error("Gist ID and token are required");
+  }
+  const url = `https://api.github.com/gists/${trimmedGistId}`;
   const res = await fetch(url, {
     headers: {
-      Authorization: `token ${token}`,
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${trimmedToken}`,
+      "X-GitHub-Api-Version": "2022-11-28",
     },
   });
   if (!res.ok) {
