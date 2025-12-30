@@ -52,11 +52,13 @@ const App: React.FC<{}> = () => {
           StorageHandler.getGistPersonalAccessToken(),
           StorageHandler.getGistId(),
         ]);
-        if (token && gistId) {
+        const trimmedToken = token?.trim();
+        const trimmedGistId = gistId?.trim();
+        if (trimmedToken && trimmedGistId) {
           const content = await downloadFromGist({
-            gistId,
+            gistId: trimmedGistId,
             filename: "10000-hours-data.json",
-            token,
+            token: trimmedToken,
           });
           const journies = JSON.parse(content);
           await StorageHandler.saveJournies(journies);
